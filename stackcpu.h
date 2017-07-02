@@ -24,6 +24,8 @@
 #include <string>
 #include <cstring>
 #include <vector>
+#include <cstdio>
+#include <cstdlib>
 
 using namespace std;
 

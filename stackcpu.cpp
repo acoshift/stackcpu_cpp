@@ -117,7 +117,7 @@ string strToUpper(string s)
 string intToStr(int i)
 {
     char buff[255];
-    itoa(i, buff, 10);
+    sprintf(buff, "%d", i);
     return buff;
 }
 
@@ -449,7 +449,7 @@ bool StackCPU::step()
         else
         {
             char buff[255];
-            itoa(static_cast<unsigned char>(s), buff, 16);
+            sprintf(buff, "%x", static_cast<unsigned char>(s));
             string a = buff;
             if (a.length() == 1) a = string(1, '0').append(a);
             sprintf(buff, E007, strToUpper(a).c_str());
