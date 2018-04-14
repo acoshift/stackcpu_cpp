@@ -29,8 +29,7 @@
 
 using namespace std;
 
-class StackCPU
-{
+class StackCPU {
 public:
     StackCPU();
     ~StackCPU();
@@ -72,8 +71,7 @@ private:
     bool step();
 };
 
-struct Opcode
-{
+struct Opcode {
     string ops;
     int opc;
     int pci;

@@ -32,8 +32,7 @@
 #define E007 "\"x%s\" is not an opcode"
 #define E008 "Out of memory"
 
-const Opcode opcodes[OPL] =
-{
+const Opcode opcodes[OPL] = {
     {"LIT",     0xff00, 2},
     {"@",       0xff01, 1},
     {"!",       0xff02, 1},
@@ -54,46 +53,40 @@ const Opcode opcodes[OPL] =
     {"R>",      0xff11, 1},
 };
 
-int opGetPci(string ops)
-{
+int opGetPci(string ops) {
     for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
         if (op->ops == ops)
             return op->pci;
     return 0;
 }
 
-int opGetPci(int opc)
-{
+int opGetPci(int opc) {
     for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
         if (op->opc == opc)
             return op->pci;
     return 0;
 }
 
-int opGetOpc(string ops)
-{
+int opGetOpc(string ops) {
     for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
         if (op->ops == ops)
             return op->opc;
     return 0xffff;
 }
 
-string opGetOps(int opc)
-{
+string opGetOps(int opc) {
     for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
         if (op->opc == opc)
             return op->ops;
     return "";
 }
 
-int opGetCode(int opc)
-{
+int opGetCode(int opc) {
     if ((opc & 0xff00) == 0xff00) return opc & 0x00ff;
     return 0xffff;
 }
 
-bool tryNumToInt(string num, int *val)
-{
+bool tryNumToInt(string num, int *val) {
     char* ok = NULL;
     if (num.substr(0, 1) == "B")
         *val = strtol(num.substr(1, num.length() - 1).c_str(), &ok, 2);
@@ -106,23 +99,21 @@ bool tryNumToInt(string num, int *val)
     return ok[0] != num[0];
 }
 
-string strToUpper(string s)
-{
+string strToUpper(string s) {
     string r;
-    for (int i = 0; i < s.length(); ++i)
+    for (int i = 0; i < s.length(); ++i) {
         r += toupper(s[i]);
+    }
     return r;
 }
 
-string intToStr(int i)
-{
+string intToStr(int i) {
     char buff[255];
     sprintf(buff, "%d", i);
     return buff;
 }
 
-StackCPU::StackCPU()
-{
+StackCPU::StackCPU() {
     lines = new vector<string>();
     ds = new vector<int>();
     rs = new vector<int>();
@@ -137,8 +128,7 @@ StackCPU::StackCPU()
     fhalt = true;
 }
 
-StackCPU::~StackCPU()
-{
+StackCPU::~StackCPU() {
     delete lines;
     delete ds;
     delete rs;
@@ -146,56 +136,51 @@ StackCPU::~StackCPU()
     delete[] ftmem;
 }
 
-int StackCPU::getMem(int addr)
-{
-    if (addr < 0 || addr >= memSize) return 0;
-    else return mem[addr];
+int StackCPU::getMem(int addr) {
+    if (addr < 0 || addr >= memSize) {
+        return 0;
+    }
+    return mem[addr];
 }
 
-void StackCPU::setMem(int addr, int val)
-{
-    if (addr >= 0 && addr < memSize) mem[addr] = val;
+void StackCPU::setMem(int addr, int val) {
+    if (addr >= 0 && addr < memSize) {
+        mem[addr] = val;
+    }
 }
 
-bool StackCPU::push(vector<int> *stack, int val)
-{
-    if (stack->size() < MAXSTACK)
-    {
+bool StackCPU::push(vector<int> *stack, int val) {
+    if (stack->size() < MAXSTACK) {
         stack->push_back(val);
         return true;
     }
     return false;
 }
 
-int StackCPU::pop(vector<int> *stack)
-{
-    if (!stack->empty())
-    {
+int StackCPU::pop(vector<int> *stack) {
+    if (!stack->empty()) {
         int top = stack->back();
         stack->pop_back();
         return top;
     }
-    else return 0xffff;
+    return 0xffff;
 }
 
-int StackCPU::peek(vector<int> *stack)
-{
-    if (!stack->empty()) return stack->back();
-    else return 0xffff;
+int StackCPU::peek(vector<int> *stack) {
+    if (!stack->empty()) {
+        return stack->back();
+    }
+    return 0xffff;
 }
 
-void StackCPU::lineReconstruct()
-{
+void StackCPU::lineReconstruct() {
     vector<string> l;
     string s, t;
-    for (int i = 0; i < lines->size(); ++i)
-    {
+    for (int i = 0; i < lines->size(); ++i) {
         s = lines->at(i);
         t = "";
-        for (int j = 0; j < s.length(); ++j)
-        {
-            if (s[j] == ' ' || s[j] == '\t')
-            {
+        for (int j = 0; j < s.length(); ++j) {
+            if (s[j] == ' ' || s[j] == '\t') {
                 if (t != "") l.push_back(strToUpper(t));
                 t = "";
                 continue;
@@ -209,29 +194,22 @@ void StackCPU::lineReconstruct()
     lines->insert(lines->end(), l.begin(), l.end());
 }
 
-bool StackCPU::preprocessing()
-{
+bool StackCPU::preprocessing() {
     vector<Opcode> m;
     string s;
     int l;
 
     // Find Label and convert number to decimal
-    for (int i = 0; i < lines->size();)
-    {
+    for (int i = 0; i < lines->size(); ) {
         s = lines->at(i);
-        if (s.substr(0, 1) != ":")
-        {
+        if (s.substr(0, 1) != ":") {
             int j = opGetPci(s);
-            for (int k = 1; k < j; ++k)
-            {
+            for (int k = 1; k < j; ++k) {
                 if (i + k >= lines->size()) break;
                 s = lines->at(i + k);
-                if (s.substr(0, 1) != ":")
-                {
-                    if (tryNumToInt(s, &l))
-                    {
-                        if ((abs(l) & 0xff00) != 0)
-                        {
+                if (s.substr(0, 1) != ":") {
+                    if (tryNumToInt(s, &l)) {
+                        if ((abs(l) & 0xff00) != 0) {
                             char buff[255];
                             sprintf(buff, E004, s.c_str());
                             lastError = buff;
@@ -239,9 +217,7 @@ bool StackCPU::preprocessing()
                             return false;
                         }
                         lines->at(i + k) = intToStr(l);
-                    }
-                    else
-                    {
+                    } else {
                         char buff[255];
                         sprintf(buff, E002, s.c_str());
                         lastError = buff;
@@ -252,14 +228,10 @@ bool StackCPU::preprocessing()
             }
             if (j != 0) i += j; else ++i;
             continue;
-        }
-        else
-        {
+        } else {
             // check dup
-            for (int j = 0; j < m.size(); ++j)
-            {
-                if (m[j].ops == s)
-                {
+            for (int j = 0; j < m.size(); ++j) {
+                if (m[j].ops == s) {
                     char buff[255];
                     sprintf(buff, E001, s.c_str());
                     lastError = buff;
@@ -276,15 +248,11 @@ bool StackCPU::preprocessing()
     }
 
     // replace label
-    for (int i = 0; i < lines->size(); ++i)
-    {
+    for (int i = 0; i < lines->size(); ++i) {
         s = lines->at(i);
-        if (s.substr(0, 1) == ":")
-        {
-            for (int j = 0; j < m.size(); ++j)
-            {
-                if (m[j].ops == s)
-                {
+        if (s.substr(0, 1) == ":") {
+            for (int j = 0; j < m.size(); ++j) {
+                if (m[j].ops == s) {
                     lines->at(i) = intToStr(m[j].opc);
                     break;
                 }
@@ -294,30 +262,25 @@ bool StackCPU::preprocessing()
     return true;
 }
 
-bool StackCPU::processing()
-{
+bool StackCPU::processing() {
     vector<int> d;
     string s;
     int op, l;
 
-    for (int i = 0; i < lines->size(); ++i)
-    {
+    for (int i = 0; i < lines->size(); ++i) {
         s = lines->at(i);
         op = opGetOpc(s);
-        if (op != 0xffff) d.push_back(op);
-        else
-        {
-            if (tryNumToInt(s, &l)) d.push_back(l);
-            else
-            {
-                if (s.substr(0, 1) == ":")
-                {
+        if (op != 0xffff) {
+            d.push_back(op);
+        } else {
+            if (tryNumToInt(s, &l)) {
+                d.push_back(l);
+            } else {
+                if (s.substr(0, 1) == ":") {
                     char buff[255];
                     sprintf(buff, E003, s.c_str());
                     lastError = buff;
-                }
-                else
-                {
+                } else {
                     char buff[255];
                     sprintf(buff, E002, s.c_str());
                     lastError = buff;
@@ -332,11 +295,10 @@ bool StackCPU::processing()
     delete[] ftmem;
     ftmem = new int[l];
     memset(ftmem, 0, l * sizeof(int));
-    for (int i = 0; i < d.size(); ++i)
-    {
-        if (i < l) ftmem[i] = d[i];
-        else
-        {
+    for (int i = 0; i < d.size(); ++i) {
+        if (i < l) {
+            ftmem[i] = d[i];
+        } else {
             lastError = E008;
             lastErrorAddr = i;
             return false;
@@ -345,14 +307,13 @@ bool StackCPU::processing()
     return true;
 }
 
-bool StackCPU::step()
-{
+bool StackCPU::step() {
     bool ret = false;
     bool nop = false;
     int addr, tmp1, tmp2;
     int s = mem[fpc];
-    switch (s)
-    {
+
+    switch (s) {
     case 0xff00:
         ret = push(ds, getMem(fpc + 1));
         break;
@@ -412,8 +373,7 @@ bool StackCPU::step()
     case 0xff0c:
         tmp1 = pop(ds);
         ret = tmp1 != 0xffff;
-        if (tmp1 == 0)
-        {
+        if (tmp1 == 0) {
             fpc = getMem(fpc + 1);
             s = 0xf;
         }
@@ -442,12 +402,12 @@ bool StackCPU::step()
     default:
        nop = true;
     }
-    if (ret) fpc += opGetPci(s);
-    else
-    {
-        if (!nop) lastError = E005;
-        else
-        {
+    if (ret) {
+        fpc += opGetPci(s);
+    } else {
+        if (!nop) {
+            lastError = E005;
+        } else {
             char buff[255];
             sprintf(buff, "%x", static_cast<unsigned char>(s));
             string a = buff;
@@ -457,8 +417,7 @@ bool StackCPU::step()
         }
         lastErrorAddr = fpc;
     }
-    if (fpc >= memSize)
-    {
+    if (fpc >= memSize) {
         ret = false;
         lastError = E006;
         lastErrorAddr = fpc;
@@ -466,16 +425,14 @@ bool StackCPU::step()
     return ret;
 }
 
-bool StackCPU::compile()
-{
+bool StackCPU::compile() {
     lineReconstruct();
     if (!preprocessing()) return false;
     if (!processing()) return false;
     return true;
 }
 
-void StackCPU::clearStack()
-{
+void StackCPU::clearStack() {
     ds->clear();
     rs->clear();
     fpc = 0;
@@ -485,24 +442,21 @@ void StackCPU::clearStack()
     memcpy(mem, ftmem, memSize * sizeof(int));
 }
 
-bool StackCPU::run()
-{
-    while (!fhalt)
+bool StackCPU::run() {
+    while (!fhalt) {
         if (!step()) return false;
+    }
     return true;
 }
 
-bool StackCPU::stepInto()
-{
+bool StackCPU::stepInto() {
     return step();
 }
 
-bool StackCPU::stepOver()
-{
+bool StackCPU::stepOver() {
     int t = mem[fpc] == 0xff0d ? 1 : 0;
     if (!step()) return false;
-    while (!fhalt && t > 0)
-    {
+    while (!fhalt && t > 0) {
         if (mem[fpc] == 0xff0d) ++t;
         else if (mem[fpc] == 0xff0e) --t;
         if (!step()) return false;
@@ -510,62 +464,51 @@ bool StackCPU::stepOver()
     return true;
 }
 
-void StackCPU::setLines(vector<string> l)
-{
+void StackCPU::setLines(vector<string> l) {
     lines->clear();
     lines->insert(lines->end(), l.begin(), l.end());
 }
 
-vector<string> *StackCPU::getLines() const
-{
+vector<string> *StackCPU::getLines() const {
     return lines;
 }
 
-string StackCPU::error() const
-{
+string StackCPU::error() const {
     return lastError;
 }
 
-int StackCPU::errorAddr() const
-{
+int StackCPU::errorAddr() const {
     return lastErrorAddr;
 }
 
-int StackCPU::pc() const
-{
+int StackCPU::pc() const {
     return fpc;
 }
 
-bool StackCPU::halt() const
-{
+bool StackCPU::halt() const {
     return fhalt;
 }
 
-vector<int> StackCPU::dataStack() const
-{
+vector<int> StackCPU::dataStack() const {
     vector<int> lst;
     for (int &x : (*ds)) lst.push_back(x);
     return lst;
 }
 
-vector<int> StackCPU::returnStack() const
-{
+vector<int> StackCPU::returnStack() const {
     vector<int> lst;
     for (int &x : (*rs)) lst.push_back(x);
     return lst;
 }
 
-int StackCPU::getMemSize() const
-{
+int StackCPU::getMemSize() const {
     return memSize;
 }
 
-void StackCPU::setMemSize(int val)
-{
+void StackCPU::setMemSize(int val) {
     memSize = val;
 }
 
-int StackCPU::memory(int i) const
-{
+int StackCPU::memory(int i) const {
     return mem[i];
 }

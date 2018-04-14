@@ -27,8 +27,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -37,17 +36,11 @@ public:
 
 private slots:
     void on_btnReset_clicked();
-
     void on_btnFont_clicked();
-
     void on_btnCompile_clicked();
-
     void on_btnRun_clicked();
-
     void on_btnInto_clicked();
-
     void on_btnOver_clicked();
-
     void on_lstMem_itemSelectionChanged();
 
 private:

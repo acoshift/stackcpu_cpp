@@ -31,8 +31,7 @@
 #define COMPILEER "Compile error at address x%1: %2"
 #define RUNTIMEER "Runtime error at address x%1: %2"
 
-int strToBlock(QString s)
-{
+int strToBlock(QString s) {
     int i = s.indexOf(' ');
     return s.leftRef(i).toString().toInt();
 }
@@ -40,76 +39,66 @@ int strToBlock(QString s)
 StackCPU *stackcpu;
 int len;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     stackcpu = new StackCPU();
     len = 2;
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete stackcpu;
     delete ui;
 }
 
-void MainWindow::raiseRuntimeError()
-{
-    QMessageBox::critical(this, APPTITLE,
-                          QString(RUNTIMEER).arg(QString::number(stackcpu->errorAddr(), 16).toUpper(), len, QChar('0'))\
-                          .arg(QString::fromStdString(stackcpu->error())));
+void MainWindow::raiseRuntimeError() {
+    QMessageBox::critical(this, APPTITLE, QString(RUNTIMEER)
+        .arg(QString::number(stackcpu->errorAddr(), 16).toUpper(), len, QChar('0'))\
+        .arg(QString::fromStdString(stackcpu->error())));
 }
 
-void MainWindow::raiseHaltMessage()
-{
+void MainWindow::raiseHaltMessage() {
     QMessageBox::information(this, APPTITLE, tr("Halt"));
 }
 
-void MainWindow::reloadStack()
-{
+void MainWindow::reloadStack() {
     ui->lstDS->clear();
     ui->lstRS->clear();
 
     vector<int> tmp = stackcpu->dataStack();
-    foreach(unsigned char t, tmp)
-    {
+    foreach(unsigned char t, tmp) {
         ui->lstDS->addItem(QString(HEXFORMAT).arg(QString::number(t, 16).toUpper(), 2, QChar('0'))\
-                           .arg(static_cast<signed char>(t)));
+            .arg(static_cast<signed char>(t)));
     }
 
     tmp = stackcpu->returnStack();
-    foreach(unsigned char t, tmp)
-    {
+    foreach(unsigned char t, tmp) {
         ui->lstRS->addItem(QString(HEXFORMAT).arg(QString::number(t, 16).toUpper(), 2, QChar('0'))\
-                           .arg(static_cast<signed char>(t)));
+            .arg(static_cast<signed char>(t)));
     }
 
     int pc = stackcpu->pc();
 
     ui->lblPC->setText(QString(HEXFORMAT).arg(QString::number(pc, 16).toUpper(), len, QChar('0'))\
-                       .arg(pc));
+        .arg(pc));
 
     ui->lstDS->scrollToBottom();
     ui->lstRS->scrollToBottom();
 
     QBrush brush = ui->lstMem->palette().brush(QPalette::Active, QPalette::Base);
 
-    for (int i = 0; i < ui->lstMem->count(); ++i)
+    for (int i = 0; i < ui->lstMem->count(); ++i) {
         ui->lstMem->item(i)->setBackground(brush);
+    }
 
     brush = ui->lstMem->palette().brush(QPalette::Active, QPalette::Highlight);
 
-    if (pc >= 0 && pc < ui->lstMem->count())
-    {
+    if (pc >= 0 && pc < ui->lstMem->count()) {
         ui->lstMem->item(pc)->setSelected(true);
         ui->lstMem->item(pc)->setBackground(brush);
     }
 }
 
-void MainWindow::reloadMemory()
-{
+void MainWindow::reloadMemory() {
     QString t;
     int l = stackcpu->getMemSize();
 
@@ -118,13 +107,11 @@ void MainWindow::reloadMemory()
 
     len = QString::number(l - 1, 16).length();
 
-    for (int i = 0; i < l; ++i)
-    {
+    for (int i = 0; i < l; ++i) {
         int m = stackcpu->memory(i);
         int p = opGetCode(m);
         t = QString::fromStdString(opGetOps(m));
-        if (p == 0xffff || t == "")
-        {
+        if (p == 0xffff || t == "") {
             unsigned char r = static_cast<unsigned char>(m);
             t = QString(HEXFORMAT).arg(QString::number(r, 16).toUpper(), 2, QChar('0')).arg(static_cast<signed char>(r));
         }
@@ -132,19 +119,16 @@ void MainWindow::reloadMemory()
     }
 }
 
-void MainWindow::on_btnReset_clicked()
-{
+void MainWindow::on_btnReset_clicked() {
     stackcpu->clearStack();
     reloadStack();
     reloadMemory();
 }
 
-void MainWindow::on_btnFont_clicked()
-{
+void MainWindow::on_btnFont_clicked() {
     bool ok;
     QFont f = QFontDialog::getFont(&ok, ui->edtCode->font(), this);
-    if (ok)
-    {
+    if (ok) {
         ui->edtCode->setFont(f);
         ui->lstMem->setFont(f);
         ui->lstDS->setFont(f);
@@ -152,14 +136,12 @@ void MainWindow::on_btnFont_clicked()
     }
 }
 
-void MainWindow::on_btnCompile_clicked()
-{
+void MainWindow::on_btnCompile_clicked() {
     ui->lstMem->clear();
     stackcpu->setMemSize(strToBlock(ui->cmbMemSize->currentText()));
     vector<string> lst;
     QStringList slst = ui->edtCode->toPlainText().split("\n");
-    for (int i = 0; i < slst.count(); ++i)
-    {
+    for (int i = 0; i < slst.count(); ++i) {
         string tmp = "";
         QString st = slst[i];
         for (int j = 0; j < st.length(); ++j)
@@ -167,29 +149,25 @@ void MainWindow::on_btnCompile_clicked()
         lst.push_back(tmp);
     }
     stackcpu->setLines(lst);
-    if (stackcpu->compile())
-    {
+    if (stackcpu->compile()) {
         stackcpu->clearStack();
         reloadMemory();
         reloadStack();
-    }
-    else
+    } else {
         QMessageBox::critical(this, APPTITLE, QString(COMPILEER).arg(QString::number(stackcpu->errorAddr(), 16).toUpper(), len, QChar('0'))\
-                              .arg(QString::fromStdString(stackcpu->error())));
+            .arg(QString::fromStdString(stackcpu->error())));
+    }
 }
 
-void MainWindow::on_btnRun_clicked()
-{
+void MainWindow::on_btnRun_clicked() {
     bool r = stackcpu->run();
     reloadStack();
     reloadMemory();
     if (!r) raiseRuntimeError();
 }
 
-void MainWindow::on_btnInto_clicked()
-{
-    if (!stackcpu->halt())
-    {
+void MainWindow::on_btnInto_clicked() {
+    if (!stackcpu->halt()) {
         bool r = stackcpu->stepInto();
         reloadStack();
         reloadMemory();
@@ -198,10 +176,8 @@ void MainWindow::on_btnInto_clicked()
     if (stackcpu->halt()) raiseHaltMessage();
 }
 
-void MainWindow::on_btnOver_clicked()
-{
-    if (!stackcpu->halt())
-    {
+void MainWindow::on_btnOver_clicked() {
+    if (!stackcpu->halt()) {
         bool r = stackcpu->stepOver();
         reloadStack();
         reloadMemory();
@@ -210,9 +186,9 @@ void MainWindow::on_btnOver_clicked()
     if (stackcpu->halt()) raiseHaltMessage();
 }
 
-void MainWindow::on_lstMem_itemSelectionChanged()
-{
+void MainWindow::on_lstMem_itemSelectionChanged() {
     int pc = stackcpu->pc();
-    if (pc >= 0 && pc < ui->lstMem->count())
+    if (pc >= 0 && pc < ui->lstMem->count()) {
         ui->lstMem->setCurrentRow(pc);
+    }
 }
