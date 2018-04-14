@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Moon Rhythm
+** Copyright (C) 2013 Thanatat Tamtan
 **
 ** This file is part of Stack CPU.
 **

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Moon Rhythm
+** Copyright (C) 2013 Thanatat Tamtan
 **
 ** This file is part of Stack CPU.
 **
@@ -30,11 +30,11 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    
+
 private slots:
     void on_btnReset_clicked();
 
