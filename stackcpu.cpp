@@ -54,30 +54,38 @@ const Opcode opcodes[OPL] = {
 };
 
 int opGetPci(string ops) {
-    for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
-        if (op->ops == ops)
-            return op->pci;
+    for (auto&& op : opcodes) {
+        if (op.ops == ops) {
+            return op.pci;
+        }
+    }
     return 0;
 }
 
 int opGetPci(int opc) {
-    for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
-        if (op->opc == opc)
-            return op->pci;
+    for (auto&& op : opcodes) {
+        if (op.opc == opc) {
+            return op.pci;
+        }
+    }
     return 0;
 }
 
 int opGetOpc(string ops) {
-    for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
-        if (op->ops == ops)
-            return op->opc;
+    for (auto&& op : opcodes) {
+        if (op.ops == ops) {
+            return op.opc;
+        }
+    }
     return 0xffff;
 }
 
 string opGetOps(int opc) {
-    for (const Opcode *op = opcodes; op < opcodes + OPL; ++op)
-        if (op->opc == opc)
-            return op->ops;
+    for (auto&& op : opcodes) {
+        if (op.opc == opc) {
+            return op.ops;
+        }
+    }
     return "";
 }
 
@@ -101,8 +109,8 @@ bool tryNumToInt(string num, int *val) {
 
 string strToUpper(string s) {
     string r;
-    for (int i = 0; i < s.length(); ++i) {
-        r += toupper(s[i]);
+    for (auto&&c : s) {
+        r += toupper(c);
     }
     return r;
 }
