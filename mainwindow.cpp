@@ -50,9 +50,12 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::raiseRuntimeError() {
-    QMessageBox::critical(this, APPTITLE, QString(RUNTIMEER)
-        .arg(QString::number(stackcpu->errorAddr(), 16).toUpper(), len, QChar('0'))\
-        .arg(QString::fromStdString(stackcpu->error())));
+    QMessageBox::critical(
+        this,
+        APPTITLE,
+        QString(RUNTIMEER)
+            .arg(QString::number(stackcpu->errorAddr(), 16).toUpper(), len, QChar('0'))\
+            .arg(QString::fromStdString(stackcpu->error())));
 }
 
 void MainWindow::raiseHaltMessage() {
@@ -102,7 +105,9 @@ void MainWindow::reloadMemory() {
     int l = stackcpu->getMemSize();
 
     // resize list
-    while (ui->lstMem->count() < l) ui->lstMem->addItem("");
+    while (ui->lstMem->count() < l) {
+        ui->lstMem->addItem("");
+    }
 
     len = QString::number(l - 1, 16).length();
 
@@ -143,8 +148,9 @@ void MainWindow::on_btnCompile_clicked() {
     for (int i = 0; i < slst.count(); ++i) {
         string tmp = "";
         QString st = slst[i];
-        for (int j = 0; j < st.length(); ++j)
+        for (int j = 0; j < st.length(); ++j) {
             tmp += st[j].toLatin1();
+        }
         lst.push_back(tmp);
     }
     stackcpu->setLines(lst);
@@ -153,8 +159,12 @@ void MainWindow::on_btnCompile_clicked() {
         reloadMemory();
         reloadStack();
     } else {
-        QMessageBox::critical(this, APPTITLE, QString(COMPILEER).arg(QString::number(stackcpu->errorAddr(), 16).toUpper(), len, QChar('0'))\
-            .arg(QString::fromStdString(stackcpu->error())));
+        QMessageBox::critical(
+            this,
+            APPTITLE,
+            QString(COMPILEER)
+                .arg(QString::number(stackcpu->errorAddr(), 16).toUpper(), len, QChar('0'))\
+                .arg(QString::fromStdString(stackcpu->error())));
     }
 }
 
