@@ -184,17 +184,16 @@ int StackCPU::peek(vector<int> *stack) {
 void StackCPU::lineReconstruct() {
     vector<string> l;
     string s, t;
-    for (int i = 0; i < lines->size(); ++i) {
-        s = lines->at(i);
+    for (auto&& s : *lines) {
         t = "";
-        for (int j = 0; j < s.length(); ++j) {
-            if (s[j] == ' ' || s[j] == '\t') {
+        for (auto&& c : s) {
+            if (c == ' ' || c == '\t') {
                 if (t != "") l.push_back(strToUpper(t));
                 t = "";
                 continue;
             }
-            if (s[j] == ';') break;
-            t += s[j];
+            if (c == ';') break;
+            t += c;
         }
         if (t != "") l.push_back(strToUpper(t));
     }
@@ -207,8 +206,8 @@ bool StackCPU::preprocessing() {
     string s;
     int l;
 
-    // Find Label and convert number to decimal
-    for (int i = 0; i < lines->size(); ) {
+    // find label and convert number to decimal
+    for (size_t i = 0; i < lines->size(); ) {
         s = lines->at(i);
         if (s.substr(0, 1) != ":") {
             int j = opGetPci(s);
@@ -238,8 +237,8 @@ bool StackCPU::preprocessing() {
             continue;
         } else {
             // check dup
-            for (int j = 0; j < m.size(); ++j) {
-                if (m[j].ops == s) {
+            for (auto&& op : m) {
+                if (op.ops == s) {
                     char buff[255];
                     sprintf(buff, E001, s.c_str());
                     lastError = buff;
@@ -256,12 +255,11 @@ bool StackCPU::preprocessing() {
     }
 
     // replace label
-    for (int i = 0; i < lines->size(); ++i) {
-        s = lines->at(i);
+    for (auto&& s : *lines) {
         if (s.substr(0, 1) == ":") {
-            for (int j = 0; j < m.size(); ++j) {
-                if (m[j].ops == s) {
-                    lines->at(i) = intToStr(m[j].opc);
+            for (auto&& op : m) {
+                if (op.ops == s) {
+                    s = intToStr(op.opc);
                     break;
                 }
             }
@@ -275,7 +273,7 @@ bool StackCPU::processing() {
     string s;
     int op, l;
 
-    for (int i = 0; i < lines->size(); ++i) {
+    for (size_t i = 0; i < lines->size(); ++i) {
         s = lines->at(i);
         op = opGetOpc(s);
         if (op != 0xffff) {
@@ -299,12 +297,12 @@ bool StackCPU::processing() {
         }
     }
 
-    l = memSize;
+    size_t m = (size_t) memSize;
     delete[] ftmem;
-    ftmem = new int[l];
-    memset(ftmem, 0, l * sizeof(int));
-    for (int i = 0; i < d.size(); ++i) {
-        if (i < l) {
+    ftmem = new int[m];
+    memset(ftmem, 0, m * sizeof(int));
+    for (size_t i = 0; i < d.size(); ++i) {
+        if (i < m) {
             ftmem[i] = d[i];
         } else {
             lastError = E008;
