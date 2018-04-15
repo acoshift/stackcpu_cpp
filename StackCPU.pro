@@ -1,17 +1,17 @@
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui widgets
 
 TARGET = StackCPU
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    stackcpu.cpp
+SOURCES += \
+  main.cpp \
+  mainwindow.cpp \
+  stackcpu.cpp
 
-HEADERS  += mainwindow.h \
-    stackcpu.h
+HEADERS += \
+  mainwindow.h \
+  stackcpu.h
 
-FORMS    += mainwindow.ui
+FORMS += mainwindow.ui
 CONFIG += c++11
