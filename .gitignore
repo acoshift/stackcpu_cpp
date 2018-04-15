@@ -1,4 +1,5 @@
 *.app
+.vscode/
 
 # C++ objects and libs
 *.slo
