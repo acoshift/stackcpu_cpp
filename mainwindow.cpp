@@ -23,7 +23,6 @@
 #include "stackcpu.h"
 #include <QMessageBox>
 #include <QFontDialog>
-#include <QDebug>
 
 #define APPTITLE "Stack CPU"
 #define HEXFORMAT "x%1 (%2)"
