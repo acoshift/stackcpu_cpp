@@ -23,6 +23,7 @@
 #include "stackcpu.h"
 #include <QMessageBox>
 #include <QFontDialog>
+#include <QTimer>
 
 #define APPTITLE "Stack CPU"
 #define HEXFORMAT "x%1 (%2)"
@@ -83,8 +84,11 @@ void MainWindow::reloadStack() {
     ui->lblPC->setText(QString(HEXFORMAT).arg(QString::number(pc, 16).toUpper(), len, QChar('0'))\
         .arg(pc));
 
-    ui->lstDS->scrollToBottom();
-    ui->lstRS->scrollToBottom();
+
+    QTimer::singleShot(1000, ui->lstDS, SLOT(scrollToBottom()));
+    QTimer::singleShot(1000, ui->lstRS, SLOT(scrollToBottom()));
+//    ui->lstDS->scrollToBottom();
+//    ui->lstRS->scrollToBottom();
 
     QBrush brush = ui->lstMem->palette().brush(QPalette::Active, QPalette::Base);
 

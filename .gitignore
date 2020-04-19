@@ -1,5 +1,6 @@
 *.app
 .vscode/
+.DS_Store
 
 # C++ objects and libs
 *.slo
