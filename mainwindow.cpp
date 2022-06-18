@@ -33,7 +33,7 @@
 
 int strToBlock(QString s) {
     int i = s.indexOf(' ');
-    return s.leftRef(i).toString().toInt();
+    return s.left(i).toInt();
 }
 
 StackCPU *stackcpu;
